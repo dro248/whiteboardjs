@@ -1,19 +1,24 @@
 body {
 	overflow: hidden;
-l}
+}
 
 #whiteboardHeader {
 	position: fixed;
 	top: 0;
 	left: 0;
+	background-color: white;
+	padding: .25em 1em;
+	border-radius: 10px;
+	border: 1px solid grey;
 }
 
 #whiteboardHeader h1 {
 	display: inline;
+	text-transform: uppercase;
 }
 
 canvas {
-	background: url(graphpaper.svg);
+	/*background: url(graphpaper.svg);*/
 	cursor: crosshair;
 	user-select: none;
 }
