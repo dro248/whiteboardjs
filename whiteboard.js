@@ -1,40 +1,54 @@
 'use strict';
 
-var whiteboard = {
-	canvas: null,
-	context: null,
-	color: null,
-	mouseOver: false,
+var whiteboard;
 
-	init: () => {
-		this.canvas = document.getElementById("whiteboard_canvas")
-		this.context = canvas.getContext("2d")
-		console.log(canvas)
-		console.log(context)
+class Whiteboard {
+
+	constructor() {
+		console.info("Whiteboard constructor()");
+		this.canvas = document.getElementById("whiteboard_canvas");
+		this.context = this.canvas.getContext("2d");
+		this.color = null
+		this.mouseOver = false
 
 		// Create event listeners
-		canvas.addEventListener('onmouseover', (event) => { 
+		this.canvas.addEventListener('onmouseover', (event) => { 
 			console.log("mouse over")
 			this.mouseOver = true 
 		})
-		canvas.addEventListener('onmouseout', (event) => { 
+		this.canvas.addEventListener('onmouseout', (event) => { 
 			console.log("mouse left")
 			this.mouseOver = false 
 		})
-		canvas.addEventListener('onmousemove', (event) => { 
+		this.canvas.addEventListener('onmousemove', (event) => { 
 			console.log("mouse moved!")
 			// if (!mouseOver) { return }
 
 			// console.log(event)
 		})
+
+		this.resize(window, this.canvas)
+	}
+
+
+	resize() {
+		this.canvas.height = window.innerHeight
+		this.canvas.width = window.innerWidth
+		
+		console.log('canvas height: ' + String(this.canvas.height))
+		console.log('canvas width: ' + String(this.canvas.width))
 	}
 }
 
-document.getElementById("whiteboard_canvas").addEventListener('onmouseover', (event) => { 
-			console.log("mouse over")
-			this.mouseOver = true 
-		})
 
-window.onload = () => {
-	whiteboard.init()
-}
+
+window.addEventListener("load", () => {
+	whiteboard = new Whiteboard()
+})
+
+window.addEventListener("resize", () => {
+	if (whiteboard){
+		// debugger;
+		whiteboard.resize(window)
+	}
+});

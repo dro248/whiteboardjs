@@ -1,0 +1,19 @@
+body {
+	overflow: hidden;
+l}
+
+#whiteboardHeader {
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#whiteboardHeader h1 {
+	display: inline;
+}
+
+canvas {
+	background: url(graphpaper.svg);
+	cursor: crosshair;
+	user-select: none;
+}
