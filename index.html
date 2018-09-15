@@ -2,14 +2,37 @@
 <html>
 <head>
 	<title>Simple Whiteboard App</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="mobile-web-app-capable" content="yes">
+	<link rel="shortcut icon" href="./img/pencil_logo.jpg" />
 	<link rel="stylesheet" type="text/css" href="normalize.css">
 	<link rel="stylesheet" type="text/css" href="whiteboard.css">
 </head>
 <body>
-	<div id="whiteboardHeader">
-		<h1>Simple Whiteboard App</h1>
+	<div class="whiteboardContainer">
+		<div id="whiteboardHeader">
+			<img src="./img/pencil_logo.jpg" id="logo">
+			<ul>
+				<li class="navItem">
+					<img src="./img/pencil.svg" id="pencilButton">
+				</li>
+				<li class="navItem">
+					<img src="./img/eraser.svg" id="eraserButton">
+				</li>
+				<li class="">
+					<input type="color" name="colorpicker" id="colorpickerButton">
+				</li>
+			</ul>
+		</div>
+		<canvas id="whiteboard_canvas"></canvas>
 	</div>
-	<canvas id="whiteboard_canvas"></canvas>
+
+
+
+	<!-- Firebase Services -->
+	<script src="https://www.gstatic.com/firebasejs/5.4.2/firebase.js"></script>
+	
+	<!-- Whiteboard -->
 	<script type="text/javascript" src="whiteboard.js"></script>
 </body>
 </html>
