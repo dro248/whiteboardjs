@@ -37,6 +37,7 @@ img { width: 100%; }
 	top: 0;
 	left: 0;
 	width: 5%;
+	min-width: 70px;
 	height: 100%;	
 	/*border-right: 1px solid grey;*/
 
@@ -68,7 +69,8 @@ img { width: 100%; }
 }
 
 #whiteboard_canvas {
-	cursor: crosshair;
+	/* cursor: crosshair; */
+	/* cursor: url('img/dot.png'), crosshair; */
 	user-select: none;
 	position: fixed;
 	left: 5%;
@@ -81,6 +83,11 @@ img { width: 100%; }
 	/*background: url(./img/picker.svg)*/
 	width: 90%;
 	height: 50px;
+}
+
+
+.activeButton {
+	background-color: white !important;
 }
 
 

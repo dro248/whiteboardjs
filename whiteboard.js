@@ -20,14 +20,26 @@ class Whiteboard {
 		this.db = new Database()
 		this.pos_offset = { x: this.canvas.getBoundingClientRect().left, y: this.canvas.getBoundingClientRect().top }
 
-		// Create event listeners
+		// Create touch event listeners
 		this.canvas.addEventListener('touchstart', (event) => 	{ this.handleTouchStart(event) })
 		this.canvas.addEventListener('touchend', (event) => 	{ this.handleTouchEnd(event) })
 		this.canvas.addEventListener('touchmove', (event) => 	{ this.handleTouchMove(event) })
 		this.canvas.addEventListener('touchcancel', (event) => 	{ this.handleTouchCancel(event) })
+
+		// Create mouse event listeners
+		this.canvas.addEventListener('mousedown', (event) => { this.handleTouchStart(event) })
+		this.canvas.addEventListener('mouseup', (event) => { this.handleTouchEnd(event) })
+		this.canvas.addEventListener('mousemove', (event) => {
+			if (this.touchActive) {
+				this.handleTouchMove(event)
+			}
+		})
+
+
 		this.canvas.addEventListener('mouseover', (event) => 	{ 
 			if (this.drawState === 'pencil') {
-				this.canvas.style.cursor = "none"
+				this.canvas.style.cursor = "url('img/dot.png'), crosshair"
+				// this.canvas.style.cursor = "crosshair"
 			}
 			if (this.drawState === 'eraser') {
 				console.log("eraser hover")
@@ -51,19 +63,28 @@ class Whiteboard {
 	handlePencilButtonClick(event){
 		console.log("Pencil Button Click")
 		this.drawState = 'pencil'
+
+		this.pencilButton.classList.add('activeButton')
+		this.eraserButton.classList.remove('activeButton')
 	}
 	handleEraserButtonClick(event){
 		console.log("Eraser Button Click")
 		this.drawState = 'eraser'
+
+		
+		this.eraserButton.classList.add('activeButton')
+		this.pencilButton.classList.remove('activeButton')
 	}
 
 	handleTouchStart(event){
-		console.log("touchstart")
+		console.log("handleTouchStart called!")
+		console.log((event instanceof MouseEvent))
+		let eventType = (event instanceof MouseEvent) ? "mouse" : "touch"
 
-		console.log(event.touches.length)
-
+		console.log(event)
+		
 		// Attempt to catch gestures such as pinch. We want to deal with them ourselves
-		if(event.touches.length > 1){
+		if(eventType === "touch" && event.touches.length > 1){
 			console.warn("Caught pinch/gesture")
 			event.preventDefault()
 
@@ -72,9 +93,8 @@ class Whiteboard {
 			return
 		}
 
-
 		this.touchActive = true 
-		let touch = this.getTouchList(event)[0]
+		let touch = (eventType === "touch") ? this.getTouchList(event)[0] : { clientX: event.clientX, clientY: event.clientY }
 		this.lastTouchPoint = touch
 
 		// Create a Stroke object and add the given point coordinates to it
@@ -98,20 +118,23 @@ class Whiteboard {
 	}
 
 	handleTouchMove(event){
+		let touchType = (event instanceof MouseEvent) ? "mouse" : "touch"
 		let touchList = this.getTouchList(event)
 
 		// NOTE: We only want to draw if we have ONE draw point
-		if(touchList.length === 0 || touchList.length > 1){
+		if(touchType === "touch" && (touchList.length === 0 || touchList.length > 1)){
 			return
 		}
 		event.preventDefault()
 
+		let touch = (touchType === "mouse") ? { clientX: event.clientX, clientY: event.clientY } : touchList[0]
+
 		if (this.touchActive){
 			// Add point to Stroke object
-			this.currentStroke.addPoint(touchList[0].clientX - this.pos_offset.x, touchList[0].clientY - this.pos_offset.y)
+			this.currentStroke.addPoint(touch.clientX - this.pos_offset.x, touch.clientY - this.pos_offset.y)
 
 			// Draw to this point
-			this.draw(touchList[0], this.canvas, this.color, this.lastTouchPoint)
+			this.draw(touch, this.canvas, this.color, this.lastTouchPoint)
 		}
 	}
 
