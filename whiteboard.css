@@ -39,6 +39,7 @@ img { width: 100%; }
 	width: 5%;
 	min-width: 70px;
 	height: 100%;	
+	box-shadow: 0 0 1em;
 	/*border-right: 1px solid grey;*/
 
 	z-index: 99999;

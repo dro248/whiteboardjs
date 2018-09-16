@@ -17,7 +17,7 @@ class Whiteboard {
 		this.touchActive = false
 		this.lastTouchPoint = null
 		this.currentStroke = null
-		this.db = new Database()
+		this.db = new Database(this)
 		this.pos_offset = { x: this.canvas.getBoundingClientRect().left, y: this.canvas.getBoundingClientRect().top }
 
 		// Create touch event listeners
@@ -29,12 +29,12 @@ class Whiteboard {
 		// Create mouse event listeners
 		this.canvas.addEventListener('mousedown', (event) => { this.handleTouchStart(event) })
 		this.canvas.addEventListener('mouseup', (event) => { this.handleTouchEnd(event) })
+		this.canvas.addEventListener('mouseleave', (event) => { this.handleTouchEnd(event) })
 		this.canvas.addEventListener('mousemove', (event) => {
 			if (this.touchActive) {
 				this.handleTouchMove(event)
 			}
 		})
-
 
 		this.canvas.addEventListener('mouseover', (event) => 	{ 
 			if (this.drawState === 'pencil') {
@@ -67,6 +67,7 @@ class Whiteboard {
 		this.pencilButton.classList.add('activeButton')
 		this.eraserButton.classList.remove('activeButton')
 	}
+	
 	handleEraserButtonClick(event){
 		console.log("Eraser Button Click")
 		this.drawState = 'eraser'
@@ -105,7 +106,6 @@ class Whiteboard {
 	}
 
 	handleTouchEnd(event){
-		console.log("touchend")
 		this.touchActive = false 
 		this.lastTouchPoint = null
 
@@ -114,7 +114,6 @@ class Whiteboard {
 
 		// Set currentStroke to empty status, ready to create a new stroke
 		this.currentStroke = null
-		console.log("setting stroke to null")
 	}
 
 	handleTouchMove(event){
@@ -131,7 +130,8 @@ class Whiteboard {
 
 		if (this.touchActive){
 			// Add point to Stroke object
-			this.currentStroke.addPoint(touch.clientX - this.pos_offset.x, touch.clientY - this.pos_offset.y)
+			// this.currentStroke.addPoint(touch.clientX - this.pos_offset.x, touch.clientY - this.pos_offset.y)
+			this.currentStroke.addPoint(touch.clientX, touch.clientY)
 
 			// Draw to this point
 			this.draw(touch, this.canvas, this.color, this.lastTouchPoint)
@@ -139,7 +139,6 @@ class Whiteboard {
 	}
 
 	handleTouchCancel(event){
-		// TODO
 		console.warn("TouchCancel() Triggered!")
 
 		// Nullify the currentStroke
@@ -188,14 +187,37 @@ class Whiteboard {
 	}
 
 	drawStroke(stroke, canvas) {
+		console.log("drawStoke()")
 
+		if (stroke === null) return
+
+		console.log(stroke)		
+		let pointList = stroke.pointList
+		for (let i = 0; i < pointList.length; i++){
+			let touch = { clientX: pointList[i].x, clientY: pointList[i].y }
+			// For the first point... line start logic
+			if (i === 0){		
+				console.log(event)
+				this.touchActive = true 
+				this.lastTouchPoint = 
+				this.color = stroke.color
+			}
+
+			// line drawing logic
+			else {
+				// Draw to this point
+				this.draw(touch, this.canvas, this.color, this.lastTouchPoint)
+			}
+
+			// On last point... line end logic
+			if (i >= pointList.length-1){
+				this.touchActive = false
+				this.lastTouchPoint = null
+			}
+		}
 	}
 
 	getTouchList(event){
-		// Returns an Array of touch objects
-
-		// console.log(event['changedTouches'])
-
 		if (!event['changedTouches']){
 			return
 		}
@@ -215,8 +237,8 @@ A Stroke object contains an ordered list of the coordinates of all of the points
 It also contains the color of the given stroke which must be a CSS recognized color (e.g. "green", rgb, #0ff222, etc.)
 Ex:
 Stroke = {
-	color: "green"
-	[
+	color: "green",
+	pointList: [
 		{x: 1, y: 5},
 		{x: 4, y: 9},
 		{x: 8, y: 13}
@@ -230,9 +252,6 @@ Stroke = {
 	addPoint(xVal, yVal){
 		// This method takes integral values for xVal, yVal
 		this.pointList.push({x: xVal, y: yVal})
-	}
-	getPointList(){
-		return this.pointList
 	}
 }
 
@@ -253,7 +272,6 @@ class Database {
 		};
 		firebase.initializeApp(this.config);
 
-
 		this.whiteboardRef = whiteboardRef
 		this.db = firebase.database()
 
@@ -262,6 +280,15 @@ class Database {
 		strokeRef.on('value', (snapshot) => {
 			console.log("Heller!! New Data from DB!!! Success!!")
 			console.log(snapshot.val())
+
+			try {
+				console.log("drawing stroke! SUCCESS!!!")
+				this.whiteboardRef.drawStroke(snapshot.val())
+			}
+			catch(e){
+				console.log("error caught in db")
+				console.log(e)
+			}
 		})
 	}
 
